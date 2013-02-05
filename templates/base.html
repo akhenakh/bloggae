@@ -36,6 +36,7 @@
                         <li><a href="http://www.nobugware.com"><i class="icon-info-sign"></i>Nobugware company</a></li>
                         <li><a href="http://www.nobugware.com/static/resume.html"><i class="icon-user"></i>Resume</a></li>
                         <li><a href="http://github.com/akhenakh"><i class="icon-eye-open"></i>Github</a></li>
+                        <li><a href="http://github.com/akhenakh/bloggae"><i class="icon-question-sign"></i>Sources for this blog</a></li>
                         <li class="nav-header">Best of</li>
                         {% for bestof in Post.query(Post.status==Post.LIVE_STATUS,Post.is_bestof==True).order(-Post.publication_date).iter(projection=[Post.title]) %}
                             <li><i class="icon-hand-right"></i><small><a href="/post{{ bestof.key.id() }}">{{ bestof.title }}</a></small></li>
