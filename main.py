@@ -3,13 +3,17 @@
 import os
 import webapp2
 from webapp2_extras import jinja2
+from webapp2_extras.routes import RedirectRoute
 #from google.appengine.ext import ndb
 from models import Post
-#from migration import ImportHandler
+from migration import ImportHandler
+import re
 import tools
 import datetime
 import StringIO
 import PyRSS2Gen
+
+post_re = re.compile(r'(\d{4})/(\d{2})/(\d{2})/([A-Za-z0-9-/]+)')
 
 def jinja2_factory(app):
     j = jinja2.Jinja2(app)
@@ -70,16 +74,27 @@ class HomeHandler(BaseHandler):
         self.render_response("index.html", posts=posts, page=page)
 
 class PostHandler(BaseHandler):
-    def get(self, year, month, day, slug):
+    def get(self, post_path):
+        m = post_re.match(post_path)
+        if not m:
+            self.abort(404)
+        year, month, day, slug = m.groups()
+        if slug.endswith('/'):
+            return self.redirect("/post/" + post_path[:-1])
         url = '/{year}/{month}/{day}/{slug}'.format(**locals())
         post = Post.get_by_id(url)
+
+        if post is None:
+            self.abort(404)
         self.render_response("post.html", post=post)
 
 debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
 app = webapp2.WSGIApplication([
     #('/upload', ImportHandler),
-    (r'^/post/(\d{4})/(\d{2})/(\d{2})/([-\w\/]+)$', PostHandler),
-    ('/feed/rss2', RSSHandler),
-    ('/', HomeHandler)
+    RedirectRoute(r'/post/<:[A-Za-z0-9_\-\/]+>', PostHandler, name='posts'),
+    RedirectRoute(r'/feed/rss2', RSSHandler, name='rss', strict_slash=True),
+    RedirectRoute('/', HomeHandler, name='root', strict_slash=True),
 ], debug=debug)
+
+
