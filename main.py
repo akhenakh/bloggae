@@ -8,23 +8,25 @@ from webapp2_extras.routes import RedirectRoute
 from models import Post
 from migration import ImportHandler
 import re
-import tools
+from tools import naturaldelta, admin_protect
 import datetime
 import StringIO
 import PyRSS2Gen
 
 post_re = re.compile(r'(\d{4})/(\d{2})/(\d{2})/([A-Za-z0-9-/]+)')
 
+
 def jinja2_factory(app):
     j = jinja2.Jinja2(app)
     j.environment.filters.update({
-        'naturaldelta':tools.naturaldelta,
+        'naturaldelta':naturaldelta,
         })
     j.environment.globals.update({
         'Post': Post,
         #'ndb': ndb, # could be used for ndb.OR in templates
         })
     return j
+
 
 class RSSHandler(webapp2.RequestHandler):
     def get(self):
@@ -49,6 +51,7 @@ class RSSHandler(webapp2.RequestHandler):
         rss.write_xml(output, encoding='utf-8')
         self.response.write(output.getvalue())
 
+
 class BaseHandler(webapp2.RequestHandler):
     @webapp2.cached_property
     def jinja2(self):
@@ -59,6 +62,7 @@ class BaseHandler(webapp2.RequestHandler):
         # Renders a template and writes the result to the response.
         rv = self.jinja2.render_template(_template, **context)
         self.response.write(rv)
+
 
 class HomeHandler(BaseHandler):
     def get(self):
@@ -72,6 +76,7 @@ class HomeHandler(BaseHandler):
         post_query = Post.query(Post.status==Post.LIVE_STATUS).order(-Post.publication_date)
         posts = post_query.fetch(paging, offset=page * paging)
         self.render_response("index.html", posts=posts, page=page)
+
 
 class PostHandler(BaseHandler):
     def get(self, post_path):
@@ -88,12 +93,46 @@ class PostHandler(BaseHandler):
             self.abort(404)
         self.render_response("post.html", post=post)
 
+
+class AdminPostListHandler(BaseHandler):
+    @admin_protect
+    def get(self):
+        paging = 20
+        try:
+            page = int(self.request.get('page'))
+        except ValueError:
+            page = 0
+        if page < 0:
+            page = 0
+        post_query = Post.query(Post.status==Post.LIVE_STATUS).order(-Post.publication_date)
+        posts = post_query.fetch(paging, offset=page * paging)
+        self.render_response("admin.html", page=page, posts=posts)
+
+
+class AdminPostEditHandler(BaseHandler):
+    @admin_protect
+    def get(self, post_path):
+        m = post_re.match(post_path)
+        if not m:
+            self.abort(404)
+        year, month, day, slug = m.groups()
+        if slug.endswith('/'):
+            return self.redirect("/post/" + post_path[:-1])
+        url = '/{year}/{month}/{day}/{slug}'.format(**locals())
+        post = Post.get_by_id(url)
+        if post is None:
+            self.abort(404)
+        self.render_response("post_admin.html", post=post)
+
+
 debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
 app = webapp2.WSGIApplication([
     #('/upload', ImportHandler),
-    RedirectRoute(r'/post/<:[A-Za-z0-9_\-\/]+>', PostHandler, name='posts'),
+    RedirectRoute(r'/post/<:[A-Za-z0-9_\-\/]+>', PostHandler, name='post'),
     RedirectRoute(r'/feed/rss2', RSSHandler, name='rss', strict_slash=True),
+    RedirectRoute('/admin', AdminPostListHandler, name='admin', strict_slash=True),
+    RedirectRoute(r'/admin/post/<:[A-Za-z0-9_\-\/]+>', AdminPostEditHandler, name='postadmin'),
     RedirectRoute('/', HomeHandler, name='root', strict_slash=True),
 ], debug=debug)
 

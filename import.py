@@ -35,7 +35,7 @@ for entry in data:
     post['content_html'] = post['summary_html'] + post['content_html']
     post['content_markup'] = post['summary'] + post['content']
     post['url'] = post['creation_date'].strftime('/%Y/%m/%d/') + post['slug']
-    #print post['url']
+    print post['url']
     post['tags'] = [x for x in post['tags'] if x != '']
 
     posts.append(post)

@@ -1,8 +1,11 @@
-import time
+from functools import wraps
 from datetime import datetime, timedelta, date
+from google.appengine.api import users
+
 
 def _now():
     return datetime.now()
+
 
 def abs_timedelta(delta):
     """Returns an "absolute" value for a timedelta, always representing a
@@ -11,6 +14,7 @@ def abs_timedelta(delta):
         now = _now()
         return now - (now + delta)
     return delta
+
 
 def date_and_delta(value):
     """Turn a value into a date and a timedelta which represents how long ago
@@ -30,6 +34,7 @@ def date_and_delta(value):
         except (ValueError, TypeError):
             return (None, value)
     return date, abs_timedelta(delta)
+
 
 def naturaldelta(value, months=True):
     """Given a timedelta or a number of seconds, return a natural
@@ -91,3 +96,13 @@ def naturaldelta(value, months=True):
             return "1 year, %d days" % days
     else:
         return "%d years" % years
+
+
+def admin_protect(f):
+    @wraps(f)
+    def decorated_function(self, *args, **kwargs):
+        user = users.get_current_user()
+        if not user or not users.is_current_user_admin():
+            return self.redirect(users.create_login_url(self.request.uri))
+        return f(self, *args, **kwargs)
+    return decorated_function

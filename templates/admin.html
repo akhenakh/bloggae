@@ -1,0 +1,37 @@
+{% extends "base_admin.html" %}
+{% set active_page = "index" %}
+{% block title %}Admin{% endblock %}
+
+
+
+{% block content %}
+    <table class="table table-hover">
+
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Creation Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for post in posts %}
+            <tr>
+                <td><a href="/admin/post{{ post.key.id() }}">{{ post.title }}</a></td>
+                <td>{{ post.creation_date|naturaldelta }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+{% block footer %}
+    <ul class="pager">
+        <li class="previous">
+            <a href="/admin?page={{ page + 1 }}">&larr; Older</a>
+        </li>
+        <li class="next{% if not page %} disabled{% endif %}">
+            <a href="/admin?page={{ page - 1 }}">Newer &rarr;</a>
+        </li>
+    </ul>
+{% endblock footer %}
