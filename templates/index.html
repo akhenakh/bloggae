@@ -11,9 +11,7 @@
                     <i class="icon-tags"></i> {{ tag }}
                 {% endfor %}
             </p>
-            {% autoescape false %}
-            {{ post.content_html }}
-            {% endautoescape %}
+            {{ post.content_html|safe }}
             <br>
 
     {% endfor %}

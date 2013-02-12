@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# coding: utf-8
 from functools import wraps
 from datetime import datetime, timedelta, date
 from google.appengine.api import users
+from unicodedata import normalize
+
 
 
 def _now():
@@ -106,3 +110,15 @@ def admin_protect(f):
             return self.redirect(users.create_login_url(self.request.uri))
         return f(self, *args, **kwargs)
     return decorated_function
+
+
+def slugify(text, encoding=None,
+         permitted_chars='abcdefghijklmnopqrstuvwxyz0123456789-'):
+    if isinstance(text, str):
+        text = text.decode(encoding or 'ascii')
+    clean_text = text.strip().replace(' ', '-').lower()
+    while '--' in clean_text:
+        clean_text = clean_text.replace('--', '-')
+    ascii_text = normalize('NFKD', clean_text).encode('ascii', 'ignore')
+    strict_text = map(lambda x: x if x in permitted_chars else '', ascii_text)
+    return ''.join(strict_text)

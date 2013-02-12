@@ -18,9 +18,10 @@
 <body>
 
 {% set navigation_bar = [
-    ('/admin', 'posts', 'Posts')]
+    ('/admin', 'posts', 'Posts'),
+    ('/admin/post/new', 'new', 'New Post')]
         -%}
-{% set active_page = active_page|default('index') -%}
+{% set active_page = active_page|default('posts') -%}
 
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar">

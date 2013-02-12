@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}{{ post.title }}{% endblock %}
+{% block head %}
+{{ super() }}
+
+{% if post.author == 'akh' %}<META NAME="Author" CONTENT="Fabrice Aneche">{% endif %}
+{% endblock %}
 {% block content %}
 
 <h2>{{ post.title }}</h2>
@@ -10,9 +15,7 @@
 <i class="icon-tags"></i> {{ tag }}
 {% endfor %}
 </p>
-{% autoescape false %}
-{{ post.content_html }}
-{% endautoescape %}
+{{ post.content_html|safe  }}
 <br>
 
 {% endblock content%}
