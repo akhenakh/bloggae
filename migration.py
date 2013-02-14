@@ -5,6 +5,8 @@ import webapp2
 from models import Post
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
 def datetime_parser(entry):
     for k, v in entry.items():
         if isinstance(v, basestring) and re.search("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$", v):
@@ -13,6 +15,7 @@ def datetime_parser(entry):
             except:
                 pass
     return entry
+
 
 class ImportHandler(webapp2.RequestHandler):
     def post(self):

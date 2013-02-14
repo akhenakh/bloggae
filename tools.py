@@ -6,7 +6,6 @@ from google.appengine.api import users
 from unicodedata import normalize
 
 
-
 def _now():
     return datetime.now()
 

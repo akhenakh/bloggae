@@ -6,11 +6,14 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="/static/prettify.css" type="text/css" rel="stylesheet" />
+
     <style type="text/css">
     </style>
     {% endblock head %}
 </head>
-<body>
+<script type="text/javascript" src="/static/prettify.js"></script>
+<body onload="prettyPrint()" bgcolor="white">
 <div class="container">
     <div class="row-fluid">
         <div class="span8">
@@ -30,6 +33,7 @@
                             </div>
                         </li>
                         <li class="nav-header">About Me</li>
+                        <li><img src="/public/faceblog.jpg" class="img-polaroid"></li>
                         <li><address><strong>Fabrice Aneche</strong><br>
                             <a href="http://twitter.com/akhenakh">@akhenakh</a>
                             </address>
@@ -57,7 +61,6 @@
         <p class="muted credit">Fabrice Aneche, powered by webapp2 & Jinja2</p>
     </div>
 </div>
-
 
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
 <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
