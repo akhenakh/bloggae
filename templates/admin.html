@@ -15,7 +15,7 @@
         </thead>
         <tbody>
         {% for post in posts %}
-            <tr>
+            <tr class="{% if post.status != 1 %}warning{% else %}success{% endif %}">
                 <td><a href="/admin/post{{ post.key.id() }}">{{ post.title }}</a></td>
                 <td>{{ post.creation_date|naturaldelta }}</td>
                 <td>{% if post.is_bestof %}<i class="icon-ok"></i>{% endif %}</td>
