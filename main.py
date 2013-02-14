@@ -75,7 +75,7 @@ class BaseHandler(webapp2.RequestHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-        paging = 10
+        paging = 5
         try:
             page = int(self.request.get('page'))
         except ValueError:
