@@ -98,10 +98,26 @@ class PostHandler(BaseHandler):
         url = '/{year}/{month}/{day}/{slug}'.format(**locals())
         post = Post.get_by_id(url)
 
-        if post is None:
+        if post is None or post.status != Post.LIVE_STATUS:
             self.abort(404)
+
         self.render_response("post.html", post=post)
 
+class PostPreviewHandler(BaseHandler):
+    def get(self, post_path):
+        m = post_re.match(post_path)
+        if not m:
+            self.abort(404)
+        year, month, day, slug = m.groups()
+        if slug.endswith('/'):
+            return self.redirect("/post/" + post_path[:-1])
+        url = '/{year}/{month}/{day}/{slug}'.format(**locals())
+        post = Post.get_by_id(url)
+
+        if post is None or post.status == Post.LIVE_STATUS:
+            self.abort(404)
+
+        self.render_response("post.html", post=post, preview=True)
 
 class AdminPostListHandler(BaseHandler):
     @admin_protect
@@ -193,6 +209,7 @@ debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 app = webapp2.WSGIApplication([
     #('/upload', ImportHandler),
     RedirectRoute(r'/post/<:[A-Za-z0-9_\-\/]+>', PostHandler, name='post'),
+    RedirectRoute(r'/preview/<:[A-Za-z0-9_\-\/]+>', PostPreviewHandler, name='post'),
     RedirectRoute(r'/feed/rss2', RSSHandler, name='rss', strict_slash=True),
     RedirectRoute('/admin', AdminPostListHandler, name='admin', strict_slash=True),
     RedirectRoute('/admin/post/new', AdminPostHandler, name='postnewadmin', strict_slash=True),

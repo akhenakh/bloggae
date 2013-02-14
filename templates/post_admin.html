@@ -12,7 +12,7 @@
         <input type="text" name="title" class="input-xxlarge" placeholder="A title" value="{{ post.title }}">
         {% if post.key %}
             <label><i class="icon-globe"></i>URL</label>
-            <span class="input-xxlarge uneditable-input">{{ post.key.id() }}</span>
+            <span class="input-xxlarge uneditable-input">{% if post.status != 1 %}/preview{% else %}/post{% endif %}{{ post.key.id() }}</span>
         {% else %}
             <span class="badge badge-important">Not saved</span>
         {% endif %}

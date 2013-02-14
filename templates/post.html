@@ -8,6 +8,7 @@
 {% block content %}
 
 <h2>{{ post.title }}</h2>
+{% if preview %}<p class="text-info">This is a preview</p>{% endif %}
 
     <p><small>By {{ post.author }}, {{ post.publication_date|naturaldelta }} ago</small></p>
 <p>
